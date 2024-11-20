@@ -1,5 +1,5 @@
-import './App.css';
-import React, { useRef } from 'react';
+import styles from './App.module.css';
+import React from 'react';
 import * as GC from '@mescius/spread-sheets';
 import { SpreadSheets, Worksheet } from '@mescius/spread-sheets-react';
 import '@mescius/spread-sheets-shapes';
@@ -11,16 +11,18 @@ import '@mescius/spread-sheets-resources-ko';
 import '@mescius/spread-sheets/styles/gc.spread.sheets.excel2016colorful.css';
 import { saveAs } from 'file-saver';
 import Button from './components/Button';
+import FileInput from './components/FileInput';
+import TextInput from './components/TextInput';
 
 GC.Spread.Common.CultureManager.culture('ko-kr');
 
 function App() {
-  const [minutes, setMinutes] = React.useState('export');
+  const [exportName, setExportName] = React.useState("");
   const [spread, setSpread] = React.useState(null);
 
   let hostStyle = {
     width: '100%',
-    height: '380px',
+    height: '100%',
   };
 
   let initSpread = function (spread) {
@@ -35,8 +37,14 @@ function App() {
 
   const ImportFile = () => {
     let file = document.getElementById('fileDemo').files[0];
+
+    if (!file) {
+      alert("파일을 선택해주세요!");
+      return;
+    }
+
     let fileType = file.name.split('.');
-    if (fileType[fileType.length - 1] == 'xlsx') {
+    if (fileType[fileType.length - 1] === 'xlsx') {
       spread.import(
         file,
         function () {},
@@ -52,10 +60,15 @@ function App() {
   };
 
   const Export_Excel = () => {
-    let fileName = document.getElementById('exportFileName').value;
-    if (fileName.substr(-5, 5) !== '.xlsx') {
-      fileName += '.xlsx';
+    let fileName = exportName;
+
+    if (fileName.trim().length === 0) {
+      alert("파일명을 입력해주세요!");
+      return;
     }
+
+    if (!fileName.endsWith('.xlsx')) fileName += '.xlsx';
+
     spread.export(
       function (blob) {
         saveAs(blob, fileName);
@@ -82,33 +95,33 @@ function App() {
 
   return (
     <div>
-      <div className="row">
-        <div className="left">
+      <div className={styles.row}>
+        <div className={styles.left}>
           <SpreadSheets
             workbookInitialized={(spread) => initSpread(spread)}
             hostStyle={hostStyle}
           >
-            <Worksheet></Worksheet>
+            <Worksheet/>
           </SpreadSheets>
         </div>
 
-        <div className="right">
+        <div className={styles.right}>
           <div>
             <h4> Excel 가져오기 </h4>
-            <input type="file" name="files[]" id="fileDemo" accept=".xlsx" />
-            <button onClick={ImportFile}>불러오기</button>
+            <FileInput name="files[]" accept=".xlsx" id="fileDemo"/>
+            <Button click={ImportFile} content="불러오기"/>
           </div>
           <div>
             <h4> Excel 내보내기 </h4>
             파일명:
-            <input
+            <TextInput
               type="text"
-              id="exportFileName"
-              placeholder="Export file name"
-              value={minutes}
-              onChange={(e) => setMinutes(e.target.value)}
+              id="exportName"
+              placeholder="Enter the file name"
+              value={exportName}
+              change={(e) => setExportName(e.target.value)}
             />
-            <Button function={Export_Excel} content="저장하기"/>
+            <Button click={Export_Excel} content="내보내기"/>
           </div>
           <div>
             <h4> 특정 셀(Cell) 데이터 가져오기 </h4>

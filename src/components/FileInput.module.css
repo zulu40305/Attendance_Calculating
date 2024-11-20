@@ -1,0 +1,11 @@
+.input {
+  border: 0.15rem solid forestgreen;
+}
+
+.input::file-selector-button {
+  padding: 0.25rem 0.7rem;
+  border: none;
+  background-color: forestgreen;
+  color: white;
+  cursor: pointer;
+}
