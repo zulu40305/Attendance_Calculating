@@ -1,5 +1,5 @@
 import styles from './App.module.css';
-import React from 'react';
+import React, { useRef } from 'react';
 import * as GC from '@mescius/spread-sheets';
 import { SpreadSheets, Worksheet } from '@mescius/spread-sheets-react';
 import '@mescius/spread-sheets-shapes';
@@ -12,27 +12,27 @@ import '@mescius/spread-sheets/styles/gc.spread.sheets.excel2016colorful.css';
 import { saveAs } from 'file-saver';
 import Button from './components/Button';
 import FileInput from './components/FileInput';
-import TextInput from './components/TextInput';
+import SheetContainer from './components/SheetContainer';
+import Sidebar from './components/Sidebar';
+import FilterBox from './components/FilterBox';
 
 GC.Spread.Common.CultureManager.culture('ko-kr');
 
 function App() {
-  const [exportName, setExportName] = React.useState("");
-  const [spread, setSpread] = React.useState(null);
+  const exportNameRef = useRef(null);
+  const filterRangeRef = useRef(null);
+  const hostStyle = useRef({width: '100%', height: '100%',});
+  const [spreadImport, setSpreadImport] = React.useState(null);
+  const [spreadExport, setSpreadExport] = React.useState(null);
+  const [filters, setFilters] = React.useState([]);
+  const regex = new RegExp(/^[A-Z]{1,2}[1-9][0-9]{0,5}:[A-Z]{1,2}[1-9][0-9]{0,5}$/);
 
-  let hostStyle = {
-    width: '100%',
-    height: '100%',
+  const initSpreadImport = function (spread) {
+    setSpreadImport(spread);
   };
 
-  let initSpread = function (spread) {
-    setSpread(spread);
-
-    // let sheet = spread.getActiveSheet();
-    // sheet
-    //   .getCell(0, 0)
-    //   .vAlign(GC.Spread.Sheets.VerticalAlign.center)
-    //   .value('Hello SpreadJS!');
+  const initSpreadExport = function (spread) {
+    setSpreadExport(spread);
   };
 
   const ImportFile = () => {
@@ -45,11 +45,11 @@ function App() {
 
     let fileType = file.name.split('.');
     if (fileType[fileType.length - 1] === 'xlsx') {
-      spread.import(
+      spreadImport.import(
         file,
         function () {},
         function (e) {
-          console.log(e); // error callback
+          console.log(e);
         },
         {
           // importxlsxoptions - https://developer.mescius.com/spreadjs/api/modules/GC.Spread.Sheets#importxlsxoptions
@@ -60,7 +60,7 @@ function App() {
   };
 
   const Export_Excel = () => {
-    let fileName = exportName;
+    let fileName = exportNameRef.current.value;
 
     if (fileName.trim().length === 0) {
       alert("파일명을 입력해주세요!");
@@ -69,7 +69,7 @@ function App() {
 
     if (!fileName.endsWith('.xlsx')) fileName += '.xlsx';
 
-    spread.export(
+    spreadExport.export(
       function (blob) {
         saveAs(blob, fileName);
       },
@@ -77,59 +77,127 @@ function App() {
         console.log(e);
       },
       {
-        // ExportXlsxOptions - https://developer.mescius.com/spreadjs/api/modules/GC.Spread.Sheets#exportxlsxoptions
         fileType: GC.Spread.Sheets.FileType.excel,
       }
     );
   };
 
+  const filterRangeSetter = (range) => {
+    let result = { 'left_row': 0, 'left_col': 0, 'right_row': 0, 'right_col': 0 };
+    const [left, right] = range.split(':');
+    const left_col_str = left.replace(/[0-9]/g, '');
+    const right_col_str = right.replace(/[0-9]/g, '');
+
+    result.left_row = parseInt(left.replace(/[A-Za-z]/g, '')) - 1;
+    result.right_row = parseInt(right.replace(/[A-Za-z]/g, '')) - 1;
+
+    if (left_col_str.length > 1) result.left_col = (26 * (left_col_str.charCodeAt(0) - 64) + (left_col_str.charCodeAt(1) - 64)) - 1;
+    else result.left_col = parseInt(left_col_str.charCodeAt(0)) - 65;
+
+    if (right_col_str.length > 1) result.right_col = (26 * (right_col_str.charCodeAt(0) - 64) + (right_col_str.charCodeAt(1) - 64)) - 1;
+    else result.right_col = parseInt(right_col_str.charCodeAt(0)) - 65;
+
+    return result;
+  }
+
   const getCellData = () => {
-    let sheet = spread.getActiveSheet();
-    // A1 데이터 가져오기
-    let val = sheet.getValue(0, 0);
-    console.log('A1-', val);
-    // B2:D4 데이터 가져오기
-    let arr = sheet.getArray(1, 1, 3, 3);
-    console.log('B2:D4-', arr);
+    const filterRange = filterRangeRef.current.value.trim();
+    if (filterRange !== "" && regex.test(filterRange)) {
+      clearExport();
+      const range = filterRangeSetter(filterRange);
+      const startRow = range.left_row;
+      const startCol = range.left_col;
+      const endRow = range.right_row - range.left_row + 1;
+      const endCol = range.right_col - range.left_col + 1;
+
+      if (endRow < 1 || endCol < 1) {
+        alert("잘못된 필터 범위입니다!");
+        return;
+      }
+
+      const sheetImport = spreadImport.getActiveSheet();
+      const sheetExport = spreadExport.getActiveSheet();
+      const data = sheetImport.getArray(startRow, startCol, endRow, endCol);
+      sheetExport.setArray(0, 0, data);
+
+      for (let row = startRow; row < endRow; row++) {
+        const height = sheetImport.getRowHeight(row);
+        sheetExport.setRowHeight(row, height);
+      }
+
+      for (let col = startCol; col < endCol; col++) {
+        const width = sheetImport.getColumnWidth(col);
+        sheetExport.setColumnWidth(col, width);
+      }
+    } else {
+      alert("올바른 필터 범위를 입력해주세요! (대소문자 구분) \n Ex) A1:AB123456");
+      return;
+    }
   };
 
+  const clearExport = () => {
+    const sheet = spreadExport.getActiveSheet();
+
+    sheet.clear(0, 0, sheet.getRowCount(), sheet.getColumnCount(), GC.Spread.Sheets.SheetArea.viewport, GC.Spread.Sheets.StorageType.data);
+  }
+
+  const addFilter = () => {
+    setFilters([...filters, {'id': Math.random()}]);
+  }
+
+  const deleteFilter = (id) => {
+    setFilters(filters.filter(f => f.id !== id));
+  }
+
   return (
-    <div>
-      <div className={styles.row}>
-        <div className={styles.left}>
-          <SpreadSheets
-            workbookInitialized={(spread) => initSpread(spread)}
-            hostStyle={hostStyle}
-          >
+    <>
+      <Sidebar width="25">
+        <div className={styles.option_container}>
+          <div className={styles.option_block}>
+            <h3 className={styles.option_title}>엑셀 불러오기 - Excel Import</h3>
+            <div className={styles.option_content}>
+              <FileInput name="files[]" accept=".xlsx" id="fileDemo"/>
+              <Button btn="confirm" click={ImportFile} content="불러오기"/>
+            </div>
+          </div>
+          <div className={styles.option_block}>
+            <h3 className={styles.option_title}>엑셀 내보내기 - Excel Export</h3>
+            <div className={styles.option_content}>
+              <input  className={styles.text_input} id="exportName" type="text" placeholder="파일명을 입력해주세요" ref={exportNameRef}/>
+              <Button btn="confirm" click={Export_Excel} content="내보내기"/>
+            </div>
+          </div>
+          <div className={styles.option_block}>
+            <h3 className={styles.option_title}>데이터 필터 - Data Filter</h3>
+            <h4 className={styles.option_subtitle}>데이터 필터 추가 - Create Data Filter</h4>
+            <div className={styles.option_content}>
+              <Button width="100%" btn="confirm" click={addFilter} content="데이터 필터 추가"/>
+            </div>
+            <h4 className={styles.option_subtitle}>필터 적용 범위 - Filter Coverage</h4>
+            <div className={styles.option_content}>
+              <input className={styles.text_input_full} type="text" placeholder="예) A1:G5" ref={filterRangeRef}/>
+            </div>
+            <div className={styles.option_content}>
+              <Button width="9rem" btn="confirm" click={getCellData} content="적용하기"/>
+              <Button width="9rem" btn="cancel" click={clearExport} content="출력 파일 초기화"/>
+            </div>
+            <FilterBox filters={filters} delete={deleteFilter}/>
+          </div>
+        </div>
+      </Sidebar>
+      <div className={styles.main}>
+        <SheetContainer label="가져온 파일 - Imported File">
+          <SpreadSheets workbookInitialized={(spreadImport) => initSpreadImport(spreadImport)} hostStyle={hostStyle}>
             <Worksheet/>
           </SpreadSheets>
-        </div>
-
-        <div className={styles.right}>
-          <div>
-            <h4> Excel 가져오기 </h4>
-            <FileInput name="files[]" accept=".xlsx" id="fileDemo"/>
-            <Button click={ImportFile} content="불러오기"/>
-          </div>
-          <div>
-            <h4> Excel 내보내기 </h4>
-            파일명:
-            <TextInput
-              type="text"
-              id="exportName"
-              placeholder="Enter the file name"
-              value={exportName}
-              change={(e) => setExportName(e.target.value)}
-            />
-            <Button click={Export_Excel} content="내보내기"/>
-          </div>
-          <div>
-            <h4> 특정 셀(Cell) 데이터 가져오기 </h4>
-            <button onClick={getCellData}>콘솔로 A1 & B2:D4 값 가져오기</button>
-          </div>
-        </div>
+        </SheetContainer> 
+        <SheetContainer label="출력 파일 - Export File">
+          <SpreadSheets workbookInitialized={(spreadExport) => initSpreadExport(spreadExport)} hostStyle={hostStyle}>
+            <Worksheet/>
+          </SpreadSheets>
+        </SheetContainer>
       </div>
-    </div>
+    </>
   );
 }
 

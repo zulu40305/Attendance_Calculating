@@ -1,11 +1,15 @@
 .input {
-  border: 0.15rem solid forestgreen;
+  width: 65%;
+  overflow: hidden;
+  border: 0.15rem solid rgb(28, 77, 59);
+  color: #999999;
 }
 
 .input::file-selector-button {
-  padding: 0.25rem 0.7rem;
+  padding: 0.4rem 0.8rem;
+  margin-right: 0.6rem;
   border: none;
-  background-color: forestgreen;
+  background-color: rgb(28, 77, 59);
   color: white;
   cursor: pointer;
 }
