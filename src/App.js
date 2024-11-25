@@ -1,7 +1,7 @@
-import styles from './App.module.css';
 import React, { useRef } from 'react';
 import * as GC from '@mescius/spread-sheets';
 import { SpreadSheets, Worksheet } from '@mescius/spread-sheets-react';
+import { saveAs } from 'file-saver';
 import '@mescius/spread-sheets-shapes';
 import '@mescius/spread-sheets-charts';
 import '@mescius/spread-sheets-slicers';
@@ -9,22 +9,22 @@ import '@mescius/spread-sheets-pivot-addon';
 import '@mescius/spread-sheets-io';
 import '@mescius/spread-sheets-resources-ko';
 import '@mescius/spread-sheets/styles/gc.spread.sheets.excel2016colorful.css';
-import { saveAs } from 'file-saver';
 import Button from './components/Button';
 import FileInput from './components/FileInput';
 import SheetContainer from './components/SheetContainer';
 import Sidebar from './components/Sidebar';
 import FilterBox from './components/FilterBox';
+import styles from './App.module.css';
 
 GC.Spread.Common.CultureManager.culture('ko-kr');
 
 function App() {
   const exportNameRef = useRef(null);
   const filterRangeRef = useRef(null);
-  const hostStyle = useRef({width: '100%', height: '100%',});
   const [spreadImport, setSpreadImport] = React.useState(null);
   const [spreadExport, setSpreadExport] = React.useState(null);
   const [filters, setFilters] = React.useState([]);
+  const hostStyle = useRef({width: '100%', height: '100%',});
   const regex = new RegExp(/^[A-Z]{1,2}[1-9][0-9]{0,5}:[A-Z]{1,2}[1-9][0-9]{0,5}$/);
 
   const initSpreadImport = function (spread) {
@@ -52,7 +52,6 @@ function App() {
           console.log(e);
         },
         {
-          // importxlsxoptions - https://developer.mescius.com/spreadjs/api/modules/GC.Spread.Sheets#importxlsxoptions
           fileType: GC.Spread.Sheets.FileType.excel,
         }
       );
@@ -100,7 +99,7 @@ function App() {
     return result;
   }
 
-  const getCellData = () => {
+  const applyFilter = () => {
     const filterRange = filterRangeRef.current.value.trim();
     if (filterRange !== "" && regex.test(filterRange)) {
       clearExport();
@@ -117,6 +116,10 @@ function App() {
 
       const sheetImport = spreadImport.getActiveSheet();
       const sheetExport = spreadExport.getActiveSheet();
+      const exportRowCount = sheetExport.getRowCount();
+
+      if (endRow > exportRowCount) sheetExport.addRows(exportRowCount, endRow - exportRowCount);
+
       const data = sheetImport.getArray(startRow, startCol, endRow, endCol);
       sheetExport.setArray(0, 0, data);
 
@@ -129,6 +132,7 @@ function App() {
         const width = sheetImport.getColumnWidth(col);
         sheetExport.setColumnWidth(col, width);
       }
+
     } else {
       alert("올바른 필터 범위를 입력해주세요! (대소문자 구분) \n Ex) A1:AB123456");
       return;
@@ -157,29 +161,29 @@ function App() {
             <h3 className={styles.option_title}>엑셀 불러오기 - Excel Import</h3>
             <div className={styles.option_content}>
               <FileInput name="files[]" accept=".xlsx" id="fileDemo"/>
-              <Button btn="confirm" click={ImportFile} content="불러오기"/>
+              <Button btn="confirm" click={ImportFile}>불러오기</Button>
             </div>
           </div>
           <div className={styles.option_block}>
             <h3 className={styles.option_title}>엑셀 내보내기 - Excel Export</h3>
             <div className={styles.option_content}>
               <input  className={styles.text_input} id="exportName" type="text" placeholder="파일명을 입력해주세요" ref={exportNameRef}/>
-              <Button btn="confirm" click={Export_Excel} content="내보내기"/>
+              <Button btn="confirm" click={Export_Excel}>내보내기</Button>
             </div>
           </div>
           <div className={styles.option_block}>
             <h3 className={styles.option_title}>데이터 필터 - Data Filter</h3>
             <h4 className={styles.option_subtitle}>데이터 필터 추가 - Create Data Filter</h4>
             <div className={styles.option_content}>
-              <Button width="100%" btn="confirm" click={addFilter} content="데이터 필터 추가"/>
+              <Button width="100%" btn="confirm" click={addFilter}>데이터 필터 추가</Button>
             </div>
             <h4 className={styles.option_subtitle}>필터 적용 범위 - Filter Coverage</h4>
             <div className={styles.option_content}>
               <input className={styles.text_input_full} type="text" placeholder="예) A1:G5" ref={filterRangeRef}/>
             </div>
             <div className={styles.option_content}>
-              <Button width="9rem" btn="confirm" click={getCellData} content="적용하기"/>
-              <Button width="9rem" btn="cancel" click={clearExport} content="출력 파일 초기화"/>
+              <Button width="9rem" btn="confirm" click={applyFilter}>적용하기</Button>
+              <Button width="9rem" btn="cancel" click={clearExport}>출력 파일 초기화</Button>
             </div>
             <FilterBox filters={filters} delete={deleteFilter}/>
           </div>

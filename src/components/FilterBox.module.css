@@ -1,5 +1,10 @@
 .filter_container {
   border: 0.3rem solid rgb(28, 77, 59);
-  padding: 0.5rem;
+  padding: 0 0.5rem;
   height: 100%;
+}
+
+.no_filter_warning {
+  font-size: 0.9rem;
+  font-weight: 600;
 }
