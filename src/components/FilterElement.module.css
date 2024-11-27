@@ -1,6 +1,82 @@
 .element_container {
   margin: 0.5rem 0;
-  padding: 0.3rem 1rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 0.3rem;
   background-color: rgb(231, 231, 231);
+}
+
+.delete {
+  float: right;
+  min-width: 1.2rem;
+  max-width: 1.2rem;
+  min-height: 1.2rem;
+  max-height: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: crimson;
+  border: none;
+  border-radius: 0.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+.delete:hover {
+  filter: brightness(1.1);
+}
+
+.delete:active {
+  filter: brightness(0.9);
+}
+
+.filter_type_block {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-align: center;
+}
+
+.select, .filter_input {
+  border: 0.15rem solid rgb(28, 77, 59);
+  border-radius: 0.2rem;
+  padding: 0.2rem 0.25rem;
+}
+
+.select {
+  color: rgb(28, 77, 59);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.filter_type_label {
+  color: rgb(28, 77, 59);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.filter_block {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-align: center;
+}
+
+.filter_input_label {
+  color: rgb(28, 77, 59);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.filter_input {
+  width: 60%;
+  min-height: 1.25rem;
+  outline: none;
 }
