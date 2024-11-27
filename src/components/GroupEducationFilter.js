@@ -1,6 +1,6 @@
 import styles from './FilterElement.module.css';
 
-export default function OnlineEducationFilter() {
+export default function GroupEducationFilter() {
 
   const createColumnRangeOption = () => {
     const options = [];
@@ -24,7 +24,7 @@ export default function OnlineEducationFilter() {
       </div>
       <div className={styles.filter}>
         <label className={styles.filter_type_label} htmlFor="time">수강 시간</label>
-        <input className={styles.filter_input} type="text" name="time" placeholder="ex) 0시간 수강"/>
+        <input className={styles.filter_input} type="text" name="time" placeholder="ex) 00월 00일 0시간"/>
       </div>
     </>
   );

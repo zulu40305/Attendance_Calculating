@@ -4,6 +4,7 @@ import styles from './FilterElement.module.css';
 import StudentNumberFilter from './StudentNumberFilter';
 import DepartmentFilter from './DepartmentFIlter';
 import OnlineEducationFilter from './OnlineEducationFilter';
+import GroupEducationFilter from './GroupEducationFilter';
 import EducationCompleteFilter from './EducationCompleteFilter';
 
 export default function FilterElement(props) {
@@ -18,11 +19,11 @@ export default function FilterElement(props) {
       case "department":
         return <DepartmentFilter />;
       case "online_education":
-        return <OnlineEducationFilter />
+        return <OnlineEducationFilter />;
       case "group_education":
-        return <div>집체교육 필터 내용</div>;
+        return <GroupEducationFilter />;
       case "education_complete":
-        return <EducationCompleteFilter />
+        return <EducationCompleteFilter />;
       default:
         return null;
     }
