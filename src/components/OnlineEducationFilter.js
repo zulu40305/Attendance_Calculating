@@ -11,16 +11,29 @@ export default function OnlineEducationFilter() {
   return (
     <>
       <div className={styles.filter}>
-        <label className={styles.filter_type_label} htmlFor="filter_value_range">값 범위</label>
-        <select className={styles.select} name="filter_value_range">
-          <option>=</option>
-          <option>&lt;</option>
-          <option>&gt;</option>
-        </select>
-        <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
-        <select className={styles.select} name="filter_column_range">
-          {createColumnRangeOption()}
-        </select>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_value_range">값 범위</label>
+          <select className={styles.select} name="filter_value_range">
+            <option value="equal">=</option>
+            <option value="little">&lt;</option>
+            <option value="great">&gt;</option>
+          </select>
+        </div>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
+          <select className={styles.select} name="filter_column_range">
+            {createColumnRangeOption()}
+          </select>
+        </div>
+      </div>
+      <div className={styles.filter}>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_conjunction">필터 결합</label>
+          <select className={styles.select} name="filter_conjunction">
+            <option value="and">AND</option>
+            <option value="or">OR</option>
+          </select>
+        </div>
       </div>
       <div className={styles.filter}>
         <label className={styles.filter_type_label} htmlFor="time">수강 시간</label>

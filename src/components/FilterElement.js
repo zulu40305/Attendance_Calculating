@@ -43,9 +43,14 @@ export default function FilterElement(props) {
           <option value="education_complete">안전교육 완료 여부</option>
         </select>
       </div>
-      <div className={styles.filter_block}>
-        {renderFilterContent()}
-      </div>
+      {
+        filterType !== "none" ?
+          <div className={styles.filter_block}>
+            {renderFilterContent()}
+          </div>
+        :
+          <></>
+      }
     </div>
   );
 }

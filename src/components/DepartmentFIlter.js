@@ -11,15 +11,28 @@ export default function DepartmentFilter() {
   return (
     <>
       <div className={styles.filter}>
-        <label className={styles.filter_type_label} htmlFor="filter_isEqual">일치 여부</label>
-        <select className={styles.select} name="filter_isEqual">
-          <option value="equal">일치</option>
-          <option value="except">제외</option>
-        </select>
-        <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
-        <select className={styles.select} name="filter_column_range">
-          {createColumnRangeOption()}
-        </select>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_isEqual">일치 여부</label>
+          <select className={styles.select} name="filter_isEqual">
+            <option value="equal">일치</option>
+            <option value="except">제외</option>
+          </select>
+        </div>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
+          <select className={styles.select} name="filter_column_range">
+            {createColumnRangeOption()}
+          </select>
+        </div>
+      </div>
+      <div className={styles.filter}>
+        <div className={styles.select_block}>
+          <label className={styles.filter_type_label} htmlFor="filter_conjunction">필터 결합</label>
+          <select className={styles.select} name="filter_conjunction">
+            <option value="and">AND</option>
+            <option value="or">OR</option>
+          </select>
+        </div>
       </div>
       <div className={styles.filter}>
         <label className={styles.filter_type_label} htmlFor="department_value">학부</label>

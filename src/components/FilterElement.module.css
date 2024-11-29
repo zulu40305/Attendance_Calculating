@@ -46,9 +46,16 @@
 }
 
 .select {
+  min-width: 4rem;
+  max-width: 10rem;
+  text-align: center;
   color: rgb(28, 77, 59);
   cursor: pointer;
   font-weight: 600;
+}
+
+.select_block .filter_type_label, .select_block .select {
+  margin: 0 0.25rem
 }
 
 .filter_type_label {
