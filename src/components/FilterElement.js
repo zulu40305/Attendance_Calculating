@@ -10,20 +10,23 @@ import EducationCompleteFilter from './EducationCompleteFilter';
 export default function FilterElement(props) {
   const [filterType, setFilterType] = useState("none");
 
-  const changeFilterType = (e) => setFilterType(e.target.value);
+  const changeFilterType = (e) => {
+    setFilterType(e.target.value);
+    props.handleFilterType(props.id, e.target.value);
+  };
 
   const renderFilterContent = () => {
     switch (filterType) {
       case "student_number":
-        return <StudentNumberFilter />;
+        return <StudentNumberFilter filter={props.filter} handleFilterOption={props.handleStudentNumber} />;
       case "department":
-        return <DepartmentFilter />;
+        return <DepartmentFilter filter={props.filter} handleFilterOption={props.handleDepartment} />;
       case "online_education":
-        return <OnlineEducationFilter />;
+        return <OnlineEducationFilter filter={props.filter} handleFilterOption={props.handleOnlineEducation} />;
       case "group_education":
-        return <GroupEducationFilter />;
+        return <GroupEducationFilter filter={props.filter} handleFilterOption={props.handleGroupEducation} />;
       case "education_complete":
-        return <EducationCompleteFilter />;
+        return <EducationCompleteFilter filter={props.filter} handleFilterOption={props.handleEducationComplete} />;
       default:
         return null;
     }

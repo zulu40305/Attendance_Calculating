@@ -149,6 +149,161 @@ function App() {
     setFilters([...filters, {'id': Math.random()}]);
   }
 
+  const handleFilterType = (id, type) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === id) {
+          switch (type) {
+            case "student_number":
+              return {
+                id: filter.id,
+                type: type,
+                value_range: "==",
+                column: "0",
+                conjunction: "&&",
+                student_number: "00"
+              };
+            
+            case "department":
+              return {
+                id: filter.id,
+                type: type,
+                is_equal: "==",
+                column: "0",
+                conjunction: "&&",
+                department: ""
+              };
+
+            case "online_education":
+              return {
+                id: filter.id,
+                type: type,
+                value_range: "==",
+                column: "0",
+                conjunction: "&&",
+                education_time: ""
+              };
+
+            case "group_education":
+              return {
+                id: filter.id,
+                type: type,
+                value_range: "==",
+                column: "0",
+                conjunction: "&&",
+                education_time: ""
+              };
+
+            case "education_complete":
+              return {
+                id: filter.id,
+                type: type,
+                column: "0",
+                conjunction: "&&",
+                is_complete: "1"
+              };
+
+            default:
+              return {
+                id: filter.id,
+                type: "none"
+              };
+          }
+        }
+        return filter;
+      })
+    );
+  };
+
+  const handleStudentNumber = (data) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === data.id) {
+          return {
+            id: filter.id,
+            type: data.type,
+            value_range: data.value_range,
+            column: data.column,
+            conjunction: data.conjunction,
+            student_number: data.student_number
+          };
+        }
+        return filter;
+      })
+    );
+  }
+
+  const handleDepartment = (data) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === data.id) {
+          return {
+            id: filter.id,
+            type: data.type,
+            is_equal: data.is_equal,
+            column: data.column,
+            conjunction: data.conjunction,
+            department: data.department
+          };
+        }
+        return filter;
+      })
+    );
+  }
+
+  const handleOnlineEducation = (data) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === data.id) {
+          return {
+            id: filter.id,
+            type: data.type,
+            value_range: data.value_range,
+            column: data.column,
+            conjunction: data.conjunction,
+            education_time: data.education_time
+          };
+        }
+        return filter;
+      })
+    );
+  }
+
+  const handleGroupEducation = (data) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === data.id) {
+          return {
+            id: filter.id,
+            type: data.type,
+            value_range: data.value_range,
+            column: data.column,
+            conjunction: data.conjunction,
+            education_time: data.education_time
+          };
+        }
+        return filter;
+      })
+    );
+  }
+  
+  const handleEducationComplete = (data) => {
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) => {
+        if (filter.id === data.id) {
+          return {
+            id: filter.id,
+            type: data.type,
+            column: data.column,
+            conjunction: data.conjunction,
+            is_complete: data.is_complete
+          };
+        }
+        return filter;
+      })
+    );
+  }
+
   const deleteFilter = (id) => {
     setFilters(filters.filter(f => f.id !== id));
   }
@@ -185,7 +340,17 @@ function App() {
               <Button width="9rem" btn="confirm" click={applyFilter}>적용하기</Button>
               <Button width="9rem" btn="cancel" click={clearExport}>출력 파일 초기화</Button>
             </div>
-            <FilterBox filters={filters} delete={deleteFilter}/>
+            <FilterBox 
+              filters={filters} 
+              delete={deleteFilter} 
+              handleFilterType={handleFilterType}
+              handleStudentNumber={handleStudentNumber}
+              handleDepartment={handleDepartment}
+              handleOnlineEducation={handleOnlineEducation}
+              handleGroupEducation={handleGroupEducation}
+              handleEducationComplete={handleEducationComplete}
+            />
+            <Button width="9rem" btn="cancel" click={() => console.log(filters)}>필터 출력</Button>
           </div>
         </div>
       </Sidebar>
