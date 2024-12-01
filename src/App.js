@@ -177,17 +177,17 @@ function App() {
         .filter(data => eval(`${parseInt(data[filters[0].column].slice(1, 3))} ${filters[0].value_range} ${parseInt(filters[0].student_number)}`))
         .filter(
           data =>
-          filters[1].equivalence == "all" ?
+          filters[1].equivalence === "all" ?
           true :
-          filters[1].equivalence == "==" ?
-          data[filters[1].column] == filters[1].department :
-          data[filters[1].column] != filters[1].department
+          filters[1].equivalence === "==" ?
+          data[filters[1].column] === filters[1].department :
+          data[filters[1].column] !== filters[1].department
         )
         // eslint-disable-next-line no-eval
         .filter(data => eval(`${parseInt(data[filters[2].column])} ${filters[2].value_range} ${parseInt(filters[2].education_time)}`))
         // eslint-disable-next-line no-eval
         .filter(data => eval(`${parseInt(data[filters[3].column])} ${filters[3].value_range} ${parseInt(filters[3].education_time)}`))
-        .filter(data => data[filters[4].column] == filters[4].is_complete);
+        .filter(data => data[filters[4].column] === filters[4].is_complete);
       } catch (e) {
         alert(e.name + " 열 위치 혹은 필터 범위 설정에 오류가 발생하였습니다! 올바른 값을 설정하였는지 확인해주세요!");
         return;
