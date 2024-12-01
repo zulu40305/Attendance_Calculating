@@ -28,24 +28,25 @@ export default function StudentNumberFilter(props) {
               type: props.filter.type,
               value_range: e.target.value,
               column: props.filter.column,
-              conjunction: props.filter.conjunction,
               student_number: props.filter.student_number
             })
           }>
             <option value="==">=</option>
+            <option value="!=">&ne;</option>
             <option value="<">&lt;</option>
             <option value=">">&gt;</option>
+            <option value="<=">&le;</option>
+            <option value=">=">&ge;</option>
           </select>
         </div>
         <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
+          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 위치</label>
           <select className={styles.select} name="filter_column_range" onChange={
             (e) => props.handleFilterOption({
               id: props.filter.id,
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: e.target.value,
-              conjunction: props.filter.conjunction,
               student_number: props.filter.student_number
             })
           }>
@@ -55,22 +56,6 @@ export default function StudentNumberFilter(props) {
       </div>
       <div className={styles.filter}>
         <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_conjunction">필터 결합</label>
-          <select className={styles.select} name="filter_conjunction" onChange={
-            (e) => props.handleFilterOption({
-              id: props.filter.id,
-              type: props.filter.type,
-              value_range: props.filter.value_range,
-              column: props.filter.column,
-              conjunction: e.target.value,
-              student_number: props.filter.student_number
-            })
-          }>
-            <option value="&&">AND</option>
-            <option value="||">OR</option>
-          </select>
-        </div>
-        <div className={styles.select_block}>
           <label className={styles.filter_input_label} htmlFor="student_number_select">학번 값</label>
           <select className={styles.select} name="student_number_select" onChange={
             (e) => props.handleFilterOption({
@@ -78,7 +63,6 @@ export default function StudentNumberFilter(props) {
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: props.filter.column,
-              conjunction: props.filter.conjunction,
               student_number: e.target.value
             })
           }>

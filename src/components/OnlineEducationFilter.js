@@ -19,25 +19,26 @@ export default function OnlineEducationFilter(props) {
               type: props.filter.type,
               value_range: e.target.value,
               column: props.filter.column,
-              conjunction: props.filter.conjunction,
-              education_time: props.filter.education_time
+              education_time: props.filter.education_time.replace(/\D/g, "").trim() == "" ? "0" : props.filter.education_time.replace(/\D/g, "")
             })
           }>
             <option value="==">=</option>
+            <option value="!=">&ne;</option>
             <option value="<">&lt;</option>
             <option value=">">&gt;</option>
+            <option value="<=">&le;</option>
+            <option value=">=">&ge;</option>
           </select>
         </div>
         <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
+          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 위치</label>
           <select className={styles.select} name="filter_column_range" onChange={
             (e) => props.handleFilterOption({
               id: props.filter.id,
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: e.target.value,
-              conjunction: props.filter.conjunction,
-              education_time: props.filter.education_time
+              education_time: props.filter.education_time.replace(/\D/g, "").trim() == "" ? "0" : props.filter.education_time.replace(/\D/g, "")
             })
           }>
             {createColumnRangeOption()}
@@ -45,33 +46,14 @@ export default function OnlineEducationFilter(props) {
         </div>
       </div>
       <div className={styles.filter}>
-        <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_conjunction">필터 결합</label>
-          <select className={styles.select} name="filter_conjunction" onChange={
+        <label className={styles.filter_type_label} htmlFor="time">수강 시간</label>
+        <input className={styles.filter_input} type="text" name="time" placeholder="ex) 0시간" onChange={
             (e) => props.handleFilterOption({
               id: props.filter.id,
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: props.filter.column,
-              conjunction: e.target.value,
-              education_time: props.filter.education_time
-            })
-          }>
-            <option value="&&">AND</option>
-            <option value="||">OR</option>
-          </select>
-        </div>
-      </div>
-      <div className={styles.filter}>
-        <label className={styles.filter_type_label} htmlFor="time">수강 시간</label>
-        <input className={styles.filter_input} type="text" name="time" placeholder="ex) 0시간 수강" onChange={
-            (e) => props.handleFilterOption({
-              id: props.filter.id,
-              type: props.filter.type,
-              value_range: props.filter.type,
-              column: props.filter.column,
-              conjunction: props.filter.conjunction,
-              education_time: e.target.value,
+              education_time: e.target.value.replace(/\D/g, "").trim() == "" ? "0" : e.target.value.replace(/\D/g, ""),
             })
           } />
       </div>

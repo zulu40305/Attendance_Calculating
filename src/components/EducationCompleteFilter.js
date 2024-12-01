@@ -12,32 +12,16 @@ export default function EducationCompleteFilter(props) {
     <>
       <div className={styles.filter}>
         <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 범위</label>
+          <label className={styles.filter_type_label} htmlFor="filter_column_range">열 위치</label>
           <select className={styles.select} name="filter_column_range" onChange={
             (e) => props.handleFilterOption({
               id: props.filter.id,
               type: props.filter.type,
               column: e.target.value,
-              conjunction: props.filter.conjunction,
               is_complete: props.filter.is_complete
             })
           }>
             {createColumnRangeOption()}
-          </select>
-        </div>
-        <div className={styles.select_block}>
-          <label className={styles.filter_type_label} htmlFor="filter_conjunction">필터 결합</label>
-          <select className={styles.select} name="filter_conjunction" onChange={
-            (e) => props.handleFilterOption({
-              id: props.filter.id,
-              type: props.filter.type,
-              column: props.filter.column,
-              conjunction: e.target.value,
-              is_complete: props.filter.is_complete
-            })
-          }>
-            <option value="&&">AND</option>
-            <option value="||">OR</option>
           </select>
         </div>
       </div>
@@ -49,7 +33,6 @@ export default function EducationCompleteFilter(props) {
                 id: props.filter.id,
                 type: props.filter.type,
                 column: props.filter.column,
-                conjunction: props.filter.conjunction,
                 is_complete: e.target.value
               })
             }>

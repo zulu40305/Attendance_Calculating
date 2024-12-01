@@ -23,7 +23,13 @@ function App() {
   const filterRangeRef = useRef(null);
   const [spreadImport, setSpreadImport] = React.useState(null);
   const [spreadExport, setSpreadExport] = React.useState(null);
-  const [filters, setFilters] = React.useState([]);
+  const [filters, setFilters] = React.useState([
+    {id: "1", type: "student_number", value_range: "==", column: "0", student_number: "00"},
+    {id: "2", type: "department", equivalence: "all", column: "0", department: ""},
+    {id: "3", type: "online_education", value_range: "==", column: "0", education_time: "0"},
+    {id: "4", type: "group_education", value_range: "==", column: "0", education_time: "0"},
+    {id: "5", type: "education_complete", column: "0", is_complete: "1"}
+  ]);
   const hostStyle = useRef({width: '100%', height: '100%',});
   const regex = new RegExp(/^[A-Z]{1,2}[1-9][0-9]{0,5}:[A-Z]{1,2}[1-9][0-9]{0,5}$/);
 
@@ -117,22 +123,77 @@ function App() {
       const sheetImport = spreadImport.getActiveSheet();
       const sheetExport = spreadExport.getActiveSheet();
       const exportRowCount = sheetExport.getRowCount();
+      const data = sheetImport.getArray(startRow, startCol, endRow, endCol);
 
       if (endRow > exportRowCount) sheetExport.addRows(exportRowCount, endRow - exportRowCount);
-
-      const data = sheetImport.getArray(startRow, startCol, endRow, endCol);
-      sheetExport.setArray(0, 0, data);
-
-      for (let row = startRow; row < endRow; row++) {
-        const height = sheetImport.getRowHeight(row);
-        sheetExport.setRowHeight(row, height);
-      }
 
       for (let col = startCol; col < endCol; col++) {
         const width = sheetImport.getColumnWidth(col);
         sheetExport.setColumnWidth(col, width);
       }
 
+      let filteredData, result = [];
+
+      const refinedData = data.map(d => {
+        let refinedRow = []; 
+        
+        d.forEach((e, i) => {
+          switch (i) {
+            case parseInt(filters[0].column):
+              refinedRow[filters[0].column] = e;
+              break;
+
+            case parseInt(filters[1].column):
+              refinedRow[filters[1].column] = e;
+              break;
+
+            case parseInt(filters[2].column):
+              e != null || undefined ?
+              refinedRow[filters[2].column] = e.replace(/\D/g, "") :
+              refinedRow[filters[2].column] = "0";
+              break;
+
+            case parseInt(filters[3].column):
+              e != null || undefined ?
+              refinedRow[filters[3].column] = e.replace(/\d+월\s*\d+일|시간/g, "").trim() : 
+              refinedRow[filters[3].column] = "0";
+              break;
+
+            case parseInt(filters[4].column):
+              e != null || undefined ?
+              refinedRow[filters[4].column] = e :
+              refinedRow[filters[4].column] = "0";
+              break;
+
+            default:
+              refinedRow[i] = e;
+          }
+        });
+        return refinedRow;
+      });
+      try {
+        filteredData = refinedData
+        .filter(data => eval(`${parseInt(data[filters[0].column].slice(1, 3))} ${filters[0].value_range} ${parseInt(filters[0].student_number)}`))
+        .filter(
+          data =>
+          filters[1].equivalence == "all" ?
+          true :
+          filters[1].equivalence == "==" ?
+          data[filters[1].column] == filters[1].department :
+          data[filters[1].column] != filters[1].department
+        )
+        .filter(data => eval(`${parseInt(data[filters[2].column])} ${filters[2].value_range} ${parseInt(filters[2].education_time)}`))
+        .filter(data => eval(`${parseInt(data[filters[3].column])} ${filters[3].value_range} ${parseInt(filters[3].education_time)}`))
+        .filter(data => data[filters[4].column] == filters[4].is_complete);
+      } catch (e) {
+        alert(e.name + " 열 위치 혹은 필터 범위 설정에 오류가 발생하였습니다! 올바른 값을 설정하였는지 확인해주세요!");
+        return;
+      }
+
+      for (let element of filteredData) result.push(data[element[0] - 1]);
+
+      sheetExport.setArray(0, 0, result);
+      alert("필터가 적용되었습니다!");
     } else {
       alert("올바른 필터 범위를 입력해주세요! (대소문자 구분) \n Ex) A1:AB123456");
       return;
@@ -145,76 +206,6 @@ function App() {
     sheet.clear(0, 0, sheet.getRowCount(), sheet.getColumnCount(), GC.Spread.Sheets.SheetArea.viewport, GC.Spread.Sheets.StorageType.data);
   }
 
-  const addFilter = () => {
-    setFilters([...filters, {'id': Math.random()}]);
-  }
-
-  const handleFilterType = (id, type) => {
-    setFilters((prevFilters) =>
-      prevFilters.map((filter) => {
-        if (filter.id === id) {
-          switch (type) {
-            case "student_number":
-              return {
-                id: filter.id,
-                type: type,
-                value_range: "==",
-                column: "0",
-                conjunction: "&&",
-                student_number: "00"
-              };
-            
-            case "department":
-              return {
-                id: filter.id,
-                type: type,
-                is_equal: "==",
-                column: "0",
-                conjunction: "&&",
-                department: ""
-              };
-
-            case "online_education":
-              return {
-                id: filter.id,
-                type: type,
-                value_range: "==",
-                column: "0",
-                conjunction: "&&",
-                education_time: ""
-              };
-
-            case "group_education":
-              return {
-                id: filter.id,
-                type: type,
-                value_range: "==",
-                column: "0",
-                conjunction: "&&",
-                education_time: ""
-              };
-
-            case "education_complete":
-              return {
-                id: filter.id,
-                type: type,
-                column: "0",
-                conjunction: "&&",
-                is_complete: "1"
-              };
-
-            default:
-              return {
-                id: filter.id,
-                type: "none"
-              };
-          }
-        }
-        return filter;
-      })
-    );
-  };
-
   const handleStudentNumber = (data) => {
     setFilters((prevFilters) =>
       prevFilters.map((filter) => {
@@ -224,7 +215,6 @@ function App() {
             type: data.type,
             value_range: data.value_range,
             column: data.column,
-            conjunction: data.conjunction,
             student_number: data.student_number
           };
         }
@@ -240,9 +230,8 @@ function App() {
           return {
             id: filter.id,
             type: data.type,
-            is_equal: data.is_equal,
+            equivalence: data.equivalence,
             column: data.column,
-            conjunction: data.conjunction,
             department: data.department
           };
         }
@@ -260,7 +249,6 @@ function App() {
             type: data.type,
             value_range: data.value_range,
             column: data.column,
-            conjunction: data.conjunction,
             education_time: data.education_time
           };
         }
@@ -278,7 +266,6 @@ function App() {
             type: data.type,
             value_range: data.value_range,
             column: data.column,
-            conjunction: data.conjunction,
             education_time: data.education_time
           };
         }
@@ -295,17 +282,12 @@ function App() {
             id: filter.id,
             type: data.type,
             column: data.column,
-            conjunction: data.conjunction,
             is_complete: data.is_complete
           };
         }
         return filter;
       })
     );
-  }
-
-  const deleteFilter = (id) => {
-    setFilters(filters.filter(f => f.id !== id));
   }
 
   return (
@@ -328,10 +310,6 @@ function App() {
           </div>
           <div className={styles.option_block}>
             <h3 className={styles.option_title}>데이터 필터 - Data Filter</h3>
-            <h4 className={styles.option_subtitle}>데이터 필터 추가 - Create Data Filter</h4>
-            <div className={styles.option_content}>
-              <Button width="100%" btn="confirm" click={addFilter}>데이터 필터 추가</Button>
-            </div>
             <h4 className={styles.option_subtitle}>필터 적용 범위 - Filter Coverage</h4>
             <div className={styles.option_content}>
               <input className={styles.text_input_full} type="text" placeholder="예) A1:G5" ref={filterRangeRef}/>
@@ -342,15 +320,12 @@ function App() {
             </div>
             <FilterBox 
               filters={filters} 
-              delete={deleteFilter} 
-              handleFilterType={handleFilterType}
               handleStudentNumber={handleStudentNumber}
               handleDepartment={handleDepartment}
               handleOnlineEducation={handleOnlineEducation}
               handleGroupEducation={handleGroupEducation}
               handleEducationComplete={handleEducationComplete}
             />
-            <Button width="9rem" btn="cancel" click={() => console.log(filters)}>필터 출력</Button>
           </div>
         </div>
       </Sidebar>
