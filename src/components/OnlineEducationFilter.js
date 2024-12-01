@@ -19,7 +19,7 @@ export default function OnlineEducationFilter(props) {
               type: props.filter.type,
               value_range: e.target.value,
               column: props.filter.column,
-              education_time: props.filter.education_time.replace(/\D/g, "").trim() == "" ? "0" : props.filter.education_time.replace(/\D/g, "")
+              education_time: props.filter.education_time.replace(/\D/g, "").trim() === "" ? "0" : props.filter.education_time.replace(/\D/g, "")
             })
           }>
             <option value="==">=</option>
@@ -38,7 +38,7 @@ export default function OnlineEducationFilter(props) {
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: e.target.value,
-              education_time: props.filter.education_time.replace(/\D/g, "").trim() == "" ? "0" : props.filter.education_time.replace(/\D/g, "")
+              education_time: props.filter.education_time.replace(/\D/g, "").trim() === "" ? "0" : props.filter.education_time.replace(/\D/g, "")
             })
           }>
             {createColumnRangeOption()}
@@ -53,7 +53,7 @@ export default function OnlineEducationFilter(props) {
               type: props.filter.type,
               value_range: props.filter.value_range,
               column: props.filter.column,
-              education_time: e.target.value.replace(/\D/g, "").trim() == "" ? "0" : e.target.value.replace(/\D/g, ""),
+              education_time: e.target.value.replace(/\D/g, "").trim() === "" ? "0" : e.target.value.replace(/\D/g, ""),
             })
           } />
       </div>
